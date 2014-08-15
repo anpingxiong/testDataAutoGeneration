@@ -44,7 +44,10 @@ public class HelperTest {
 		while(iterator.hasNext()){
 			Entry<String,Map<String, ForignKeyPo>> entry =iterator.next();
 			System.out.println(entry.getKey());
-			System.out.println(entry.getValue());
+
+			Map<String,ForignKeyPo> forignKeyPo = entry.getValue();
+			
+			
 		}
 		
 	}
