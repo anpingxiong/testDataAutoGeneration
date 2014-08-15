@@ -2,7 +2,7 @@ package database.service;
 
 import database.po.Database;
 
-public interface DatabaseManager {
+public interface DatabaseTestDataManager {
 	/**
 	 * @param database
 	 * anping
