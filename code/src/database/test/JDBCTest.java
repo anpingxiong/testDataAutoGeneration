@@ -1,9 +1,12 @@
 package database.test;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
 
 import org.junit.Test;
 
@@ -14,11 +17,21 @@ public class JDBCTest {
 
 	static {
 		Database.setDrivername("com.mysql.jdbc.Driver");
-		Database.setUrl("jdbc:mysql://127.0.0.1:3306/blog");
+		Database.setUrl("jdbc:mysql://127.0.0.1:3306/test");
 		Database.setUsername("root");
 		Database.setPassword("root");
 	}
-
+   
+	@Test
+	public void testInsertData() throws SQLException{
+		Connection connection = DataBaseConnectionHelper.getConnection();
+		String sql ="insert into  t_data values('"+new Date(1,12,10)+"')";
+		Statement st  =  connection.createStatement();
+		 st.execute(sql);
+		 st.close();
+		 connection.close();
+	}
+	
 	// 获取所有的表格信息
 	@Test
 	public void testGetAllTable() throws SQLException {
