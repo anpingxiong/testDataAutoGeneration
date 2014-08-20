@@ -17,7 +17,7 @@ public class JDBCTest {
 
 	static {
 		Database.setDrivername("com.mysql.jdbc.Driver");
-		Database.setUrl("jdbc:mysql://127.0.0.1:3306/test");
+		Database.setUrl("jdbc:mysql://127.0.0.1:3306/blog");
 		Database.setUsername("root");
 		Database.setPassword("root");
 	}
@@ -84,26 +84,20 @@ public class JDBCTest {
 	public void testGetTablePrimaryForignKeyInfo() throws SQLException {
 		DataBaseConnectionHelper databaseHelper = new DataBaseConnectionHelper();
 
-		Connection connection = databaseHelper.getConnection();
-		ResultSet rs = connection.getMetaData().getImportedKeys(null, null,
-				"t_article_info");
+		Connection connection = DataBaseConnectionHelper.getConnection();
+		ResultSet rs = connection.getMetaData().getPrimaryKeys(connection.getCatalog(), null, "t_article_info");
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int numberOfColumns = rsmd.getColumnCount();
 
 		for (int i = 1; i < numberOfColumns; i++) {
-			// System.out.println(rsmd.getColumnLabel(i));
+			System.out.println(rsmd.getColumnLabel(i));
 
 		}
 		while (rs.next()) {
 			System.out.println("1111111111111111");
 			// 外键表对应
-			System.out.println(rs.getString("PKTABLE_NAME"));
-			System.out.println(rs.getString("PKCOLUMN_NAME"));
-			// 本表表对应
-			System.out.println(rs.getString("FKTABLE_NAME"));
-			System.out.println(rs.getString("FKCOLUMN_NAME"));
-			// //System.out.println(rs.getString("FK_NAME"));
-			// System.out.println(rs.getString("PK_NAME"));
+			System.out.println(rs.getString("COLUMN_NAME"));
+		 
 		}
 		rs.close();
 		connection.close();

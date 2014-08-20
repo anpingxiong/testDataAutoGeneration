@@ -27,6 +27,15 @@ public class HelperTest {
 	}
 
 	
+	
+	@Test
+	public void testGetOneTablePrimaryKeyInfo() throws SQLException{
+		Connection conn = DataBaseConnectionHelper.getConnection();
+		TableHelper tableHelper = new TableHelper();
+		System.out.println(tableHelper.getOneTablePrimaryKeyInfo("t_user", conn,true));
+		
+	}
+	
 	/**
 	 * 测试TableHelper类的获取所有列的信息
 	 * 
@@ -35,6 +44,8 @@ public class HelperTest {
 	 * 上午11:42:28
 	 * @throws SQLException 
 	 */
+	
+	
 	@Test
 	public void testGetAllColumnInfo() throws SQLException{
 		Connection conn = DataBaseConnectionHelper.getConnection();

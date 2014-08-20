@@ -2,6 +2,7 @@ package database.helper;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +15,37 @@ import database.po.ForignKeyPo;
 public class TableHelper {
 
 	/**
+	 * 
+	 * @param tableName
 	 * @param conn
 	 * @param closeConnection
-	 * @param tableName  
+	 * @return
+	 * @throws SQLException
+	 * anping
+	 * TODO	获取一个表格的所有的主键信息
+	 * 下午9:00:42
+	 */
+	public static List<String> getOneTablePrimaryKeyInfo(String tableName,
+			Connection conn, boolean closeConnection) throws SQLException {
+		
+		List<String> primaryKeys = new ArrayList<String>(2);
+		ResultSet rs = conn.getMetaData().getPrimaryKeys(conn.getCatalog(),
+				null, tableName);
+
+		while (rs.next()) {
+			primaryKeys.add(rs.getString("COLUMN_NAME"));
+			
+		}
+		rs.close();
+		if (closeConnection)
+			conn.close();
+		return primaryKeys;
+	}
+
+	/**
+	 * @param conn
+	 * @param closeConnection
+	 * @param tableName
 	 * @return anping TODO 获取指定表格的所有列的信息 上午9:41:56 使用map的原因是获取指定的列名速度快
 	 * @throws SQLException
 	 */
@@ -34,9 +63,10 @@ public class TableHelper {
 					.getString("IS_NULLABLE")) ? true : false);
 			columnInfo.setAutoIncreseAble("YES".equals(columns
 					.getString("IS_AUTOINCREMENT")) ? true : false);
-			columnInfo.setCharMaxLength(columns
-					.getString("CHAR_OCTET_LENGTH")==null?0:Integer.parseInt(columns
-					.getString("CHAR_OCTET_LENGTH")));
+			columnInfo
+					.setCharMaxLength(columns.getString("CHAR_OCTET_LENGTH") == null ? 0
+							: Integer.parseInt(columns
+									.getString("CHAR_OCTET_LENGTH")));
 			columnInfos.add(columnInfo);
 		}
 		return columnInfos;
@@ -83,7 +113,7 @@ public class TableHelper {
 	 * @throws SQLException
 	 *             anping TODO获取一个表格的信息 上午10:17:59
 	 */
-	private static Map<String, ForignKeyPo> getOneTableForignInfo(
+	public static Map<String, ForignKeyPo> getOneTableForignInfo(
 			String tableName, Connection conn, boolean closeConnection)
 			throws SQLException {
 		Map<String, ForignKeyPo> forignKeys = new HashMap<String, ForignKeyPo>(

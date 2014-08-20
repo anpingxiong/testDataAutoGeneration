@@ -29,12 +29,13 @@ public class InsertDataToTableHelperTest {
 		Database.setUsername("root");
 		Database.setPassword("root");
 	}
+
 	@Test
 	public void testInsertNoForignKeyTableData() throws SQLException {
 		InsertDataToTableHelper helper = new InsertDataToTableHelper();
 		Connection conn = DataBaseConnectionHelper.getConnection();
 
-		helper.insertNoForignKeyTableData(conn, "t_theme_type",
+		helper.insertNoForignKeyTableData(conn, "t_friends",
 				new InsertDataStrategy() {
 					@Override
 					public List<Map<String, Object>> dataGeneration(
@@ -47,19 +48,18 @@ public class InsertDataToTableHelperTest {
 								3);
 
 						data1.put("version", 1);
-						data1.put("theme", "fuck you");
-						Map<String, Object> data2= new HashMap<String, Object>(
+						data1.put("theme", "hello");
+						Map<String, Object> data2 = new HashMap<String, Object>(
 								3);
 
-						data2.put("version",2 );
-						data2.put("theme", "fuck you");
+						data2.put("version", 2);
+						data2.put("theme", "word");
 						datas.add(data1);
 						datas.add(data2);
 						return datas;
 					}
-				});
+				}, true);
 
-		
 	}
 
 }
