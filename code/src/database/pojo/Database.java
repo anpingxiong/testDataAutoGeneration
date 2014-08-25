@@ -1,4 +1,4 @@
-package database.po;
+package database.pojo;
 
 /**
  * 数据库参数类

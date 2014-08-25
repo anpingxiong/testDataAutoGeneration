@@ -2,21 +2,21 @@ package database.helper;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.sql.Time;
+
 import java.sql.Types;
 
 import java.sql.SQLException;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
-
 import database.insert.strategy.InsertDataStrategy;
-import database.po.ColumnInfo;
-import database.po.ForignKeyPo;
+import database.pojo.ColumnInfo;
+import database.pojo.ForignKeyPo;
+import java.util.HashMap;
 
 public class InsertDataToTableHelper {
 
@@ -25,13 +25,40 @@ public class InsertDataToTableHelper {
 	 * @param tablesName
 	 * @param strategy
 	 * @param closeConnection
-	 * anping
-	 * TODO插入既含有主键又是外键的列的表格
-	 * 下午6:40:47
+	 * @return boolean true为插入成功，false为失败 anping TODO插入既含有主键又是外键的列的表格
+	 * 
+	 *         在此不去判断是否它含有主外键的列，有外部调用是做判断 下午6:40:47
+	 * @throws SQLException
 	 */
-	public void insertHavePrimaryForignKeyTableData(Connection conn, String tablesName,
-			InsertDataStrategy strategy, boolean closeConnection) {
+	private boolean insertDataToHavePrimaryForignKeyTable(Connection conn,
+			String tablesName, InsertDataStrategy strategy,
+			boolean closeConnection) throws SQLException {
+		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
+				tablesName, conn, false);// 获取主键信息
+		Map<String, ForignKeyPo> forignKey = TableHelper.getOneTableForignInfo(
+				tablesName, conn, false);// 获取外键信息
+		Map<String, List<Object>> primaryKeysValue = new HashMap<String, List<Object>>(
+				2); // 存放主外键的名称和存储在数据库中主外键的值
+		// --获取表格中所有的主外键信息 开始
+		for (String primary : primaryKeys) {
+			if (forignKey.get(primary) != null) {
+				primaryKeysValue.put(primary, TableHelper
+						.getDataByTablePrimaryKeyName(forignKey.get(primary)
+								.getForignKeyTable(), primary, conn, false));
+				forignKey.remove(primary);// 清楚外键信息列中 即使主键又是外键的那个特殊列
+			}
+		}
 
+		// --获取结束
+
+		List<ColumnInfo> columnInfos = TableHelper.getTableColumnInfo(conn,
+				tablesName, false);
+		this.cleanForeignKeyColumn(forignKey, columnInfos);
+		this.createBeforeBodySqlByColumns(tablesName, columnInfos);//
+		List<Map<String, Object>> datas = strategy.dataGeneration(columnInfos);
+		// 开始
+
+		return true;
 	}
 
 	/**
@@ -44,7 +71,7 @@ public class InsertDataToTableHelper {
 	 *             anping TODO 更新表格的外键信息 下午6:48:43
 	 *             通过获取外键列信息（其中包括外键对应的表格，以及外键对应表格的主键）
 	 */
-	public void updateForignKeyTableData(Connection conn, String tablesName,
+	public void updateDataForForignKeyTable(Connection conn, String tablesName,
 			InsertDataStrategy strategy, boolean closeConnection)
 			throws SQLException {
 		// 获取该表格的所有主键,然后一个一个插入数据
@@ -65,15 +92,17 @@ public class InsertDataToTableHelper {
 	 * 
 	 * @param conn
 	 * @param tablesName
+	 *            默认是不含有即是主键又是外键列的表格
 	 * @param strategy
 	 * @throws SQLException
 	 *             anping TODO 向无外键约束的表格插入数据 下午6:48:43
 	 *             ps(不处理含有即是主键又是外键的列，外键的值暂时为插入 null)
 	 * 
+	 * 
 	 */
-	public void insertNoForignKeyTableData(Connection conn, String tablesName,
-			InsertDataStrategy strategy, boolean closeConnection)
-			throws SQLException {
+	public void insertDataToNoForignKeyTable(Connection conn,
+			String tablesName, InsertDataStrategy strategy,
+			boolean closeConnection) throws SQLException {
 
 		// 获取一个表格的所有列信息
 		List<ColumnInfo> columnInfos = TableHelper.getTableColumnInfo(conn,
@@ -83,14 +112,6 @@ public class InsertDataToTableHelper {
 		Map<String, ForignKeyPo> forignColumnInfo = TableHelper
 				.getOneTableForignInfo(tablesName, conn, false);
 
-		// ---------获取主键信息
-		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
-				tablesName, conn, false);
- 
-		// ------处理含有主外键开始，如果有主外键的情况，则该表格暂时搁置不管
-		if (this.judgeColumnIsPrimaryAndForeign(forignColumnInfo, primaryKeys))
-			return;
-		 
 		// -----清楚外键列开始
 		this.cleanForeignKeyColumn(forignColumnInfo, columnInfos);
 		// -------清楚外键列结束
@@ -115,13 +136,20 @@ public class InsertDataToTableHelper {
 	}
 
 	/*
-	 * 判断 是否含有 既是主键又是外键的列
+	 * 判断 该表格 是否是即含有 既是主键又是外键的列
 	 */
-	private boolean judgeColumnIsPrimaryAndForeign(
-			Map<String, ForignKeyPo> foreignKeys, List<String> primarys) {
+	private boolean judgeColumnIsPrimaryAndForeign(Connection conn,
+			String tablesName) throws SQLException {
+		// 获取到该表格的外键信息，目的是取出columnInfos里的外键，以便所有的外键都暂时为null
+		Map<String, ForignKeyPo> forignColumnInfo = TableHelper
+				.getOneTableForignInfo(tablesName, conn, false);
+
+		// ---------获取主键信息
+		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
+				tablesName, conn, false);
 		boolean result = false;
-		for (String primary : primarys) {
-			if (foreignKeys.get(primary) != null) {
+		for (String primary : primaryKeys) {
+			if (forignColumnInfo.get(primary) != null) {
 				result = true;
 				break;
 			}
@@ -129,6 +157,9 @@ public class InsertDataToTableHelper {
 		return result;
 	}
 
+	/*
+	 * 清理掉外键
+	 */
 	private void cleanForeignKeyColumn(Map<String, ForignKeyPo> foreignKeys,
 			List<ColumnInfo> columnInfos) {
 		Set<Entry<String, ForignKeyPo>> entrySet = foreignKeys.entrySet();
@@ -143,8 +174,31 @@ public class InsertDataToTableHelper {
 	}
 
 	/*
-	 * 拼接部分sql全段部分语句
+	 * 修改掉测试数据 将 主外键信息修改为从数据库中获取的数据
 	 */
+	public  void modifyStrategyData(List<Map<String, Object>> datas,
+			Map<String, List<Object>> primaryValue) {
+		Set<Entry<String, List<Object>>> entrys = primaryValue.entrySet();
+		
+		
+		for (Entry<String, List<Object>> entry : entrys) {
+			int i =0 ;
+			String key = entry.getKey();
+			List<Object> values = entry.getValue();
+		    
+			
+			for (Map<String, Object> mapsValus : datas) {
+				Object  columnValue = values.get(i%values.size());
+				 System.out.println(columnValue+"-------------");
+			    mapsValus.put(key, columnValue);
+			
+			    i++;
+			}
+			
+		}
+
+	}
+
 	private String createAfterbodySqlByColumns(List<Map<String, Object>> datas,
 			List<ColumnInfo> columnInfos, String beforeBodySql) {
 		// 在此开始拼接数据

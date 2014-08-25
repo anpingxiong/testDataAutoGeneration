@@ -12,8 +12,8 @@ import org.junit.Test;
 import database.helper.DataBaseConnectionHelper;
 import database.helper.InsertDataToTableHelper;
 import database.insert.strategy.InsertDataStrategy;
-import database.po.ColumnInfo;
-import database.po.Database;
+import database.pojo.ColumnInfo;
+import database.pojo.Database;
 
 /**
  * 像
@@ -35,7 +35,7 @@ public class InsertDataToTableHelperTest {
 		InsertDataToTableHelper helper = new InsertDataToTableHelper();
 		Connection conn = DataBaseConnectionHelper.getConnection();
 
-		helper.insertNoForignKeyTableData(conn, "t_friends",
+		helper.insertDataToNoForignKeyTable(conn, "t_friends",
 				new InsertDataStrategy() {
 					@Override
 					public List<Map<String, Object>> dataGeneration(

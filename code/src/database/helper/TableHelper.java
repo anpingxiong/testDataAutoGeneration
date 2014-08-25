@@ -8,12 +8,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.Statement;
 
-import database.po.ColumnInfo;
-import database.po.ForignKeyPo;
+import database.pojo.ColumnInfo;
+import database.pojo.ForignKeyPo;
 
 public class TableHelper {
 
+	
+	/**
+	 * 
+	 * @return
+	 * anping  sql = select primaryKey from tableName ;
+	 * TODO获取主键数据
+	 * 下午7:26:55
+	 */
+	public static List<Object> getDataByTablePrimaryKeyName(String tableName,String primaryKey,Connection conn,boolean closeConnection) throws SQLException{
+		List<Object>  primaryKeys= new ArrayList<Object>(15);
+		Statement  statement= conn.createStatement();
+		ResultSet rs =  statement.executeQuery("select "+primaryKey+" from "+tableName);
+		while(rs.next()){
+				primaryKeys.add(rs.getObject(primaryKey));
+		}
+		rs.close();
+		statement.close();
+		if(closeConnection){
+			conn.close();
+		}
+		return primaryKeys;
+	}
 	/**
 	 * 
 	 * @param tableName

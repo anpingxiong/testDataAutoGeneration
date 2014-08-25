@@ -6,8 +6,8 @@ import java.util.Map;
 
 import database.helper.DataBaseConnectionHelper;
 import database.helper.TableHelper;
-import database.po.Database;
-import database.po.ForignKeyPo;
+import database.pojo.Database;
+import database.pojo.ForignKeyPo;
 import database.service.*;
 
 public class DatabaseTestDataManagerServiceSimpleImpl implements

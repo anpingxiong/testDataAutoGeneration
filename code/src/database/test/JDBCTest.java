@@ -11,7 +11,7 @@ import java.sql.Time;
 import org.junit.Test;
 
 import database.helper.DataBaseConnectionHelper;
-import database.po.Database;
+import database.pojo.Database;
 
 public class JDBCTest {
 

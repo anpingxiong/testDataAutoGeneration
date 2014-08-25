@@ -1,6 +1,6 @@
 package database.service;
 
-import database.po.Database;
+import database.pojo.Database;
 
 public interface DatabaseTestDataManagerService {
 	/**

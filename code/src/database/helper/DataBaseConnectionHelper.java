@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import database.po.Database;
+import database.pojo.Database;
 
 public class DataBaseConnectionHelper {
 	 
