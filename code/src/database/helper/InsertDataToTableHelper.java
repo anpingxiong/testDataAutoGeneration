@@ -30,7 +30,7 @@ public class InsertDataToTableHelper {
 	 *         在此不去判断是否它含有主外键的列，有外部调用是做判断 下午6:40:47
 	 * @throws SQLException
 	 */
-	private boolean insertDataToHavePrimaryForignKeyTable(Connection conn,
+	public boolean insertDataToHavePrimaryForignKeyTable(Connection conn,
 			String tablesName, InsertDataStrategy strategy,
 			boolean closeConnection) throws SQLException {
 		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
@@ -42,22 +42,36 @@ public class InsertDataToTableHelper {
 		// --获取表格中所有的主外键信息 开始
 		for (String primary : primaryKeys) {
 			if (forignKey.get(primary) != null) {
+			    System.out.println(forignKey.get(primary).getForignKeyName()+"------------");
 				primaryKeysValue.put(primary, TableHelper
 						.getDataByTablePrimaryKeyName(forignKey.get(primary)
-								.getForignKeyTable(), primary, conn, false));
+								.getForignKeyTable(), forignKey.get(primary).getForignKeyName(), conn, false));
 				forignKey.remove(primary);// 清楚外键信息列中 即使主键又是外键的那个特殊列
 			}
 		}
 
 		// --获取结束
 
+		
 		List<ColumnInfo> columnInfos = TableHelper.getTableColumnInfo(conn,
 				tablesName, false);
 		this.cleanForeignKeyColumn(forignKey, columnInfos);
-		this.createBeforeBodySqlByColumns(tablesName, columnInfos);//
+		
 		List<Map<String, Object>> datas = strategy.dataGeneration(columnInfos);
 		// 开始
-
+		//------------开始生成sql
+		String sql  = this.createBeforeBodySqlByColumns(tablesName, columnInfos);
+		this.modifyStrategyData(datas, primaryKeysValue);
+		sql  = this.createAfterbodySqlByColumns(datas, columnInfos, sql);
+		System.out.println(sql);
+ 		// ----------生成sql结束
+		/**
+		Statement st = conn.createStatement();
+		st.execute(sql);
+		st.close();
+		if (closeConnection)
+			conn.close();
+         **/
 		return true;
 	}
 

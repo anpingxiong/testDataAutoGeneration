@@ -85,7 +85,7 @@ public class JDBCTest {
 		DataBaseConnectionHelper databaseHelper = new DataBaseConnectionHelper();
 
 		Connection connection = DataBaseConnectionHelper.getConnection();
-		ResultSet rs = connection.getMetaData().getPrimaryKeys(connection.getCatalog(), null, "t_article_info");
+		ResultSet rs = connection.getMetaData().getImportedKeys(connection.getCatalog(), null, "t_test_friend");
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int numberOfColumns = rsmd.getColumnCount();
 
@@ -96,8 +96,10 @@ public class JDBCTest {
 		while (rs.next()) {
 			System.out.println("1111111111111111");
 			// 外键表对应
-			System.out.println(rs.getString("COLUMN_NAME"));
-		 
+			System.out.println(rs.getString("PKCOLUMN_NAME"));
+			System.out.println(rs.getString("PKTABLE_NAME"));
+			System.out.println(rs.getString("FKCOLUMN_NAME"));
+			System.out.println(rs.getString("FKTABLE_NAME"));	
 		}
 		rs.close();
 		connection.close();

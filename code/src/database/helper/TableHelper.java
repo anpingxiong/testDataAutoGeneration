@@ -26,7 +26,9 @@ public class TableHelper {
 	public static List<Object> getDataByTablePrimaryKeyName(String tableName,String primaryKey,Connection conn,boolean closeConnection) throws SQLException{
 		List<Object>  primaryKeys= new ArrayList<Object>(15);
 		Statement  statement= conn.createStatement();
-		ResultSet rs =  statement.executeQuery("select "+primaryKey+" from "+tableName);
+		String sql  = "select "+primaryKey+" from "+tableName;
+		System.out.println(sql);
+		ResultSet rs =  statement.executeQuery(sql);
 		while(rs.next()){
 				primaryKeys.add(rs.getObject(primaryKey));
 		}
@@ -147,8 +149,9 @@ public class TableHelper {
 
 		while (rs.next()) {
 			ForignKeyPo forignKeyPo = new ForignKeyPo();
-			forignKeyPo.setForignKeyName("FKCOLUMN_NAME");
-			forignKeyPo.setForignKeyTable("FKTABLE_NAME");
+		 
+			forignKeyPo.setForignKeyName(rs.getString("PKCOLUMN_NAME"));
+			forignKeyPo.setForignKeyTable(rs.getString("PKTABLE_NAME"));
 			forignKeys.put(rs.getString("FKCOLUMN_NAME"), forignKeyPo);
 		}
 		rs.close();

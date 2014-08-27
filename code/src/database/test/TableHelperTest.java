@@ -1,5 +1,9 @@
 package database.test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,13 +35,17 @@ public class TableHelperTest {
 	
 	
 	/**
+	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException 
 	 *  测试修改策略数据方法
 	 * anping
 	 * TODO
 	 * 下午7:32:32
+	 * @throws  
 	 */
 	@Test
-	public void testModifyStrategyData(){
+	public void testModifyStrategyData()    {
+		 
 		InsertDataToTableHelper helper = new InsertDataToTableHelper();
 		List<Map<String,Object>> datas = new ArrayList<Map<String,Object>>();
 		Map<String,List<Object>> primaryValue= new HashMap<String,List<Object>>();
@@ -68,6 +76,7 @@ public class TableHelperTest {
 		
 		primaryValue.put("username", primary);
 		helper.modifyStrategyData(datas, primaryValue);
+		
 		
 		for(Map<String,Object> dataForPrint:datas){
 			Set<String> keys = dataForPrint.keySet();
