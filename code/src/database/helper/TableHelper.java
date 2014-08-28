@@ -13,9 +13,25 @@ import java.sql.Statement;
 import database.pojo.ColumnInfo;
 import database.pojo.ForignKeyPo;
 
+/**
+ * 
+ * @author anping
+ * 数据库表格操作类
+ */
 public class TableHelper {
 
 	
+	/**
+	 * 
+	 * @return
+	 * anping
+	 * TODO 获取一个表格中的所有数据
+	 * 下午8:44:59
+	 */
+	public static List<Map<String,Object>> getDataByTableName(String tableName,Connection conn ,boolean closeConnection){
+		 
+		return null;
+	}
 	/**
 	 * 
 	 * @return
@@ -71,7 +87,8 @@ public class TableHelper {
 	 * @param conn
 	 * @param closeConnection
 	 * @param tableName
-	 * @return anping TODO 获取指定表格的所有列的信息 上午9:41:56 使用map的原因是获取指定的列名速度快
+	 * @return anping TODO 获取指定表格的所有列的信息
+	 * 上午9:41:56 使用map的原因是获取指定的列名速度快
 	 * @throws SQLException
 	 */
 	public static List<ColumnInfo> getTableColumnInfo(Connection conn,
@@ -136,7 +153,7 @@ public class TableHelper {
 	 * @param closeConnection
 	 *            true则关闭连接 false则不关闭连接 将表格的信息存储在map中
 	 * @throws SQLException
-	 *             anping TODO获取一个表格的信息 上午10:17:59
+	 *             anping TODO获取一个表格的外键信息 上午10:17:59
 	 */
 	public static Map<String, ForignKeyPo> getOneTableForignInfo(
 			String tableName, Connection conn, boolean closeConnection)

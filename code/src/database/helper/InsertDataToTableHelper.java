@@ -42,36 +42,36 @@ public class InsertDataToTableHelper {
 		// --获取表格中所有的主外键信息 开始
 		for (String primary : primaryKeys) {
 			if (forignKey.get(primary) != null) {
-			    System.out.println(forignKey.get(primary).getForignKeyName()+"------------");
+				System.out.println(forignKey.get(primary).getForignKeyName()
+						+ "------------");
 				primaryKeysValue.put(primary, TableHelper
 						.getDataByTablePrimaryKeyName(forignKey.get(primary)
-								.getForignKeyTable(), forignKey.get(primary).getForignKeyName(), conn, false));
+								.getForignKeyTable(), forignKey.get(primary)
+								.getForignKeyName(), conn, false));
 				forignKey.remove(primary);// 清楚外键信息列中 即使主键又是外键的那个特殊列
 			}
 		}
 
 		// --获取结束
 
-		
 		List<ColumnInfo> columnInfos = TableHelper.getTableColumnInfo(conn,
 				tablesName, false);
 		this.cleanForeignKeyColumn(forignKey, columnInfos);
-		
-		List<Map<String, Object>> datas = strategy.dataGeneration(columnInfos);
-		// 开始
-		//------------开始生成sql
-		String sql  = this.createBeforeBodySqlByColumns(tablesName, columnInfos);
+
+		List<Map<String, Object>> datas = strategy.dataGeneration(columnInfos);// 通过策略获取测试数据
+
+		// ------------开始生成sql
+		String sql = this.createBeforeBodySqlByColumns(tablesName, columnInfos);
 		this.modifyStrategyData(datas, primaryKeysValue);
-		sql  = this.createAfterbodySqlByColumns(datas, columnInfos, sql);
+		sql = this.createAfterbodySqlByColumns(datas, columnInfos, sql);
 		System.out.println(sql);
- 		// ----------生成sql结束
-		/**
+		// ----------生成sql结束
+
 		Statement st = conn.createStatement();
 		st.execute(sql);
 		st.close();
 		if (closeConnection)
 			conn.close();
-         **/
 		return true;
 	}
 
@@ -83,22 +83,44 @@ public class InsertDataToTableHelper {
 	 *            true 为关闭 false 为不关闭
 	 * @throws SQLException
 	 *             anping TODO 更新表格的外键信息 下午6:48:43
-	 *             通过获取外键列信息（其中包括外键对应的表格，以及外键对应表格的主键）
+	 *             通过获取外键列信息来更新本表格的信息
+	 *             不处理的选项有 即使主键又是外键的
 	 */
 	public void updateDataForForignKeyTable(Connection conn, String tablesName,
 			InsertDataStrategy strategy, boolean closeConnection)
 			throws SQLException {
-		// 获取该表格的所有主键,然后一个一个插入数据
 
-		// 获取表格中的所有外键信息
+		Map<String, List<Object>> foreignKeysValue = new HashMap<String, List<Object>>(
+				2); // 用来存放外键的所对应表格的数据
+
 		Map<String, ForignKeyPo> columnInfos = TableHelper
-				.getOneTableForignInfo(tablesName, conn, false);
-		// 需要更新所有的外键就需要知道对应的值
-		Set<Entry<String, ForignKeyPo>> entrySets = columnInfos.entrySet();
-		// 获取
-		for (Entry<String, ForignKeyPo> entry : entrySets) {
+				.getOneTableForignInfo(tablesName, conn, false);// 获取表格中的所有外键信息
+
+		//---获取主键，以便清除 外键中既是主键又是外籍的列 --开始
+		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
+				tablesName, conn, false);// 获取主键信息
+		
+		for(String primary:primaryKeys){
+			if(columnInfos.get(primary)!=null){
+				columnInfos.remove(primary);
+			}
+		}
+		
+		//---清除 --结束
+		Set<String> keys = columnInfos.keySet();
+
+		for (String key : keys) {// 获取所有外键在数据库中存储的值
+
+			foreignKeysValue.put(key, TableHelper.getDataByTablePrimaryKeyName(
+					columnInfos.get(key).getForignKeyTable(),
+					columnInfos.get(key).getForignKeyName(), conn, false));
 
 		}
+		
+		
+		//开始拼接update 语句
+		String sql  = "update "+tablesName;
+		
 
 	}
 
@@ -118,25 +140,19 @@ public class InsertDataToTableHelper {
 			String tablesName, InsertDataStrategy strategy,
 			boolean closeConnection) throws SQLException {
 
-		// 获取一个表格的所有列信息
 		List<ColumnInfo> columnInfos = TableHelper.getTableColumnInfo(conn,
-				tablesName, false);
+				tablesName, false);// 获取一个表格的所有列信息
 
-		// 获取到该表格的外键信息，目的是取出columnInfos里的外键，以便所有的外键都暂时为null
 		Map<String, ForignKeyPo> forignColumnInfo = TableHelper
-				.getOneTableForignInfo(tablesName, conn, false);
+				.getOneTableForignInfo(tablesName, conn, false);// 获取到该表格的外键信息，目的是取出columnInfos里的外键，以便所有的外键都暂时为null
 
-		// -----清楚外键列开始
-		this.cleanForeignKeyColumn(forignColumnInfo, columnInfos);
-		// -------清楚外键列结束
+		this.cleanForeignKeyColumn(forignColumnInfo, columnInfos); // -----清楚外键列
 
-		// 如果表格里没有了列则直接退出
-		if (columnInfos.size() == 0)
+		if (columnInfos.size() == 0)// 如果表格里没有了列则直接退出
 			return;
 
 		// ------------生成insert sql开始
-		// 通过数据生成策略获取了数据
-		List<Map<String, Object>> datas = strategy.dataGeneration(columnInfos);
+		List<Map<String, Object>> datas = strategy.dataGeneration(columnInfos); // 通过数据生成策略获取了数据
 		String sql = this.createBeforeBodySqlByColumns(tablesName, columnInfos);
 		sql = this.createAfterbodySqlByColumns(datas, columnInfos, sql);
 		System.out.println(sql);
@@ -154,13 +170,12 @@ public class InsertDataToTableHelper {
 	 */
 	private boolean judgeColumnIsPrimaryAndForeign(Connection conn,
 			String tablesName) throws SQLException {
-		// 获取到该表格的外键信息，目的是取出columnInfos里的外键，以便所有的外键都暂时为null
-		Map<String, ForignKeyPo> forignColumnInfo = TableHelper
-				.getOneTableForignInfo(tablesName, conn, false);
 
-		// ---------获取主键信息
+		Map<String, ForignKeyPo> forignColumnInfo = TableHelper
+				.getOneTableForignInfo(tablesName, conn, false);// 获取到该表格的外键信息，目的是取出columnInfos里的外键，以便所有的外键都暂时为null
+
 		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
-				tablesName, conn, false);
+				tablesName, conn, false);// ---------获取主键信息
 		boolean result = false;
 		for (String primary : primaryKeys) {
 			if (forignColumnInfo.get(primary) != null) {
@@ -190,25 +205,23 @@ public class InsertDataToTableHelper {
 	/*
 	 * 修改掉测试数据 将 主外键信息修改为从数据库中获取的数据
 	 */
-	public  void modifyStrategyData(List<Map<String, Object>> datas,
+	public void modifyStrategyData(List<Map<String, Object>> datas,
 			Map<String, List<Object>> primaryValue) {
 		Set<Entry<String, List<Object>>> entrys = primaryValue.entrySet();
-		
-		
+
 		for (Entry<String, List<Object>> entry : entrys) {
-			int i =0 ;
+			int i = 0;
 			String key = entry.getKey();
 			List<Object> values = entry.getValue();
-		    
-			
+
 			for (Map<String, Object> mapsValus : datas) {
-				Object  columnValue = values.get(i%values.size());
-				 System.out.println(columnValue+"-------------");
-			    mapsValus.put(key, columnValue);
-			
-			    i++;
+				Object columnValue = values.get(i % values.size());
+
+				mapsValus.put(key, columnValue);
+
+				i++;
 			}
-			
+
 		}
 
 	}
@@ -275,14 +288,14 @@ public class InsertDataToTableHelper {
 		}
 			break;
 		case Types.BLOB: {
-			// 简直醉了 ，不处理这个，谁回去存储文件到数据库中啊？？
-			sql = "null";
+
+			sql = "null";// 简直醉了 ，不处理这个，谁回去存储文件到数据库中啊？？
 		}
 			break;// 对应二进制大对象，即对象流花了的byte[]
 		case Types.BOOLEAN: {
-			// 在数据库中存储的就是 true=1 , false=0
+
 			sql = (boolean) data.get(columnInfo.getColumnName()) == true ? "1"
-					: "0";
+					: "0"; // 在数据库中存储的就是 true=1 , false=0
 		}
 			break;
 		case Types.CHAR: {
@@ -290,13 +303,15 @@ public class InsertDataToTableHelper {
 		}
 			break;
 		case Types.CLOB: {
-			// 简直又是醉了，不处理
-			sql = "null";
+
+			sql = "null";// 简直又是醉了，不处理
 		}
 			break;// 可以存储varchar都存储不下的数据量 对应String
 		case Types.DATE: {
-			// 使用 java.sql.Date 需要加 ''
-			sql = "'" + data.get(columnInfo.getColumnName()) + "'";
+
+			sql = "'" + data.get(columnInfo.getColumnName()) + "'";// 使用
+																	// java.sql.Date
+																	// 需要加 ''
 		}
 			break;
 		case Types.DECIMAL: {
