@@ -294,12 +294,15 @@ public class InsertDataToTableHelper {
 				if (!column.isAutoIncreseAble()) {
 					beforeBodySql += this.createSqlByColumnType(column, data)
 							+ ",";
+				}else{
+					beforeBodySql += "null,";
 				}
 			}
 			beforeBodySql = beforeBodySql.substring(0,
 					beforeBodySql.length() - 1) + "),";
 		}
-		return beforeBodySql;
+		
+		return beforeBodySql.substring(0, beforeBodySql.length()-1)+";";
 	}
 
 	/*
@@ -309,9 +312,9 @@ public class InsertDataToTableHelper {
 			List<ColumnInfo> columnInfos) {
 		String sql = "insert into  " + tablesName + "(";
 		for (ColumnInfo columnInfo : columnInfos) {
-			if (!columnInfo.isAutoIncreseAble()) {
+			 
 				sql += columnInfo.getColumnName() + ",";
-			}
+			 
 		}
 		sql = sql.substring(0, sql.length() - 1);
 

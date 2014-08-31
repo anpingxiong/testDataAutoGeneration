@@ -46,21 +46,12 @@ public class InsertDataToTableHelperTest {
 		
 	}
 	
-	 /**
-	  * 
-	  * @throws SQLException
-	  * anping
-	  * TODO 测试插入含有即是主键又是外键的表格
-	  * 下午8:05:30
-	  */
 	@Test
-	public void testInsertDataToHavePrimaryForignKeyTable() throws SQLException{
-		
+	public void testInsertDataToHavePrimaryForignKeyTable2() throws SQLException{
 		InsertDataToTableHelper helper = new InsertDataToTableHelper();
 		Connection conn = DataBaseConnectionHelper.getConnection();
-		helper.insertDataToHavePrimaryForignKeyTable(conn, "t_test_friend", new InsertDataStrategy() {
-			
-			@Override
+	     helper.insertDataToHavePrimaryForignKeyTable(conn, "t_test_book", new InsertDataStrategy() {
+			 	@Override
 			public List<Map<String, Object>> dataGeneration(
 					List<ColumnInfo> tableColumnMessage) {
 				// TODO Auto-generated method stub
@@ -76,6 +67,44 @@ public class InsertDataToTableHelperTest {
 				Map<String,Object>  datas3 =new HashMap<String,Object>(2);
 				datas3.put("id",1);
 				datas3.put("uid",102);
+				
+				testDatas.add(datas);
+				testDatas.add(datas2);
+				testDatas.add(datas3);
+				return testDatas;
+			}
+		},true);
+	}
+	 /**
+	  * 
+	  * @throws SQLException
+	  * anping
+	  * TODO 测试插入含有即是主键又是外键的表格
+	  * 下午8:05:30
+	  */
+	@Test
+	public void testInsertDataToHavePrimaryForignKeyTable() throws SQLException{
+		
+		InsertDataToTableHelper helper = new InsertDataToTableHelper();
+		Connection conn = DataBaseConnectionHelper.getConnection();
+		helper.insertDataToHavePrimaryForignKeyTable(conn, "t_test_user", new InsertDataStrategy() {
+			
+			@Override
+			public List<Map<String, Object>> dataGeneration(
+					List<ColumnInfo> tableColumnMessage) {
+				// TODO Auto-generated method stub
+				List<Map<String,Object>>  testDatas= new ArrayList<Map<String,Object>>(3);
+				Map<String,Object>  datas =new HashMap<String,Object>(2);
+				datas.put("id",100);
+				datas.put("name","anping");
+				
+				Map<String,Object>  datas2 =new HashMap<String,Object>(2);
+				datas2.put("id",101);
+				datas2.put("name","anping2");
+				
+				Map<String,Object>  datas3 =new HashMap<String,Object>(2);
+				datas3.put("id",102);
+				datas3.put("name","anping3");
 				
 				testDatas.add(datas);
 				testDatas.add(datas2);
