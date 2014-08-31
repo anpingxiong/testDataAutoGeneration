@@ -30,6 +30,29 @@ public class InsertDataToTableHelperTest {
 		Database.setPassword("root");
 	}
 	
+	
+	/**
+	 * anping
+	 * TODO 测试更新表格外键的方法
+	 * 下午8:07:28
+	 * @throws SQLException 
+	 */
+	@Test
+	public void testUpdateDataForForignKeyTable() throws SQLException{
+		
+		InsertDataToTableHelper helper = new InsertDataToTableHelper();
+		Connection conn = DataBaseConnectionHelper.getConnection();
+		helper.updateDataForForignKeyTable(conn, "t_test_book",true);
+		
+	}
+	
+	 /**
+	  * 
+	  * @throws SQLException
+	  * anping
+	  * TODO 测试插入含有即是主键又是外键的表格
+	  * 下午8:05:30
+	  */
 	@Test
 	public void testInsertDataToHavePrimaryForignKeyTable() throws SQLException{
 		

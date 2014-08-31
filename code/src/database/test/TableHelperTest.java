@@ -28,11 +28,32 @@ import database.pojo.ForignKeyPo;
 public class TableHelperTest {
 	static {
 		Database.setDrivername("com.mysql.jdbc.Driver");
-		Database.setUrl("jdbc:mysql://127.0.0.1:3306/test");
+		Database.setUrl("jdbc:mysql://127.0.0.1:3306/blog");
 		Database.setUsername("root");
 		Database.setPassword("root");
 	}
 	
+	
+	/** 
+	 * anping
+	 * TODO 测试获取某一个表格中的所有数据
+	 * 下午7:03:49
+	 * @throws SQLException 
+	 */
+	@Test
+	public void testGetDataByTableName() throws SQLException{
+		Connection  conn = DataBaseConnectionHelper.getConnection();
+		TableHelper helper = new TableHelper();
+		
+	    List<Map<String,Object>>  datas = 	helper.getDataByTableName("t_theme_type", conn, true);
+	    
+	    for(Map<String,Object>  data:datas){
+	    	Set<String> keys = data.keySet();
+	    	for(String key:keys){
+	    		System.out.println(data.get(key));
+	    	}
+	    }
+	}
 	
 	/**
 	 * @throws FileNotFoundException 
@@ -95,7 +116,7 @@ public class TableHelperTest {
 	public void testGetDataByTablePrimaryKey() throws SQLException{
 		Connection  conn = DataBaseConnectionHelper.getConnection();
 		TableHelper helper = new TableHelper();
-	 	List<Object>  datas =  helper.getDataByTablePrimaryKeyName("t_student", "id", conn,true);
+	 	List<Object>  datas =  helper.getDataByTablePrimaryKeyName("t_user", "id", conn,true);
 	 	for(Object object:datas){
 	 		System.out.println(object);
 	 	}

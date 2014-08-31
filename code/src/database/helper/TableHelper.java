@@ -27,10 +27,32 @@ public class TableHelper {
 	 * anping
 	 * TODO 获取一个表格中的所有数据
 	 * 下午8:44:59
+	 * @throws SQLException 
 	 */
-	public static List<Map<String,Object>> getDataByTableName(String tableName,Connection conn ,boolean closeConnection){
-		 
-		return null;
+	public static List<Map<String,Object>> getDataByTableName(String tableName,Connection conn ,boolean closeConnection) throws SQLException{
+		List<Map<String,Object>>  datas = new ArrayList<Map<String,Object>>(50);
+		String sql = "select * from  "+tableName+";";
+		
+		Statement statement = conn.createStatement();
+		ResultSet rs  = statement.executeQuery(sql);
+		System.out.println(sql);
+		ResultSetMetaData  resultSetMeta = rs.getMetaData();
+		
+		
+		while(rs.next()){
+			Map<String,Object> data = new HashMap<String,Object>();
+			for(int i=1 ;i<=resultSetMeta.getColumnCount();i++){
+				data.put(resultSetMeta.getColumnLabel(i), rs.getObject(resultSetMeta.getColumnLabel(i)));
+			
+			}
+			datas.add(data);
+		}
+		
+		rs.close();
+		statement.close();
+		if(closeConnection)
+			conn.close();
+		return datas;
 	}
 	/**
 	 * 

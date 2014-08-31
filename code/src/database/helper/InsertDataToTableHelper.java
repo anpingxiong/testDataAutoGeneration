@@ -1,22 +1,20 @@
 package database.helper;
 
 import java.sql.Connection;
-import java.sql.Statement;
-
-import java.sql.Types;
-
 import java.sql.SQLException;
-
-import java.util.LinkedList;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import database.insert.strategy.InsertDataStrategy;
 import database.pojo.ColumnInfo;
 import database.pojo.ForignKeyPo;
-import java.util.HashMap;
 
 public class InsertDataToTableHelper {
 
@@ -82,13 +80,11 @@ public class InsertDataToTableHelper {
 	 * @param closeConnection
 	 *            true 为关闭 false 为不关闭
 	 * @throws SQLException
-	 *             anping TODO 更新表格的外键信息 下午6:48:43
-	 *             通过获取外键列信息来更新本表格的信息
-	 *             不处理的选项有 即使主键又是外键的
+	 *             anping TODO 更新表格的外键信息 下午6:48:43 通过获取外键列信息来更新本表格的信息 不处理的选项有
+	 *             即使主键又是外键的
 	 */
 	public void updateDataForForignKeyTable(Connection conn, String tablesName,
-			InsertDataStrategy strategy, boolean closeConnection)
-			throws SQLException {
+			boolean closeConnection) throws SQLException {
 
 		Map<String, List<Object>> foreignKeysValue = new HashMap<String, List<Object>>(
 				2); // 用来存放外键的所对应表格的数据
@@ -96,17 +92,17 @@ public class InsertDataToTableHelper {
 		Map<String, ForignKeyPo> columnInfos = TableHelper
 				.getOneTableForignInfo(tablesName, conn, false);// 获取表格中的所有外键信息
 
-		//---获取主键，以便清除 外键中既是主键又是外籍的列 --开始
+		// ---获取主键，以便清除 外键中既是主键又是外籍的列 --开始
 		List<String> primaryKeys = TableHelper.getOneTablePrimaryKeyInfo(
 				tablesName, conn, false);// 获取主键信息
-		
-		for(String primary:primaryKeys){
-			if(columnInfos.get(primary)!=null){
+
+		for (String primary : primaryKeys) {
+			if (columnInfos.get(primary) != null) {
 				columnInfos.remove(primary);
 			}
 		}
-		
-		//---清除 --结束
+
+		// ---清除 --结束
 		Set<String> keys = columnInfos.keySet();
 
 		for (String key : keys) {// 获取所有外键在数据库中存储的值
@@ -116,11 +112,30 @@ public class InsertDataToTableHelper {
 					columnInfos.get(key).getForignKeyName(), conn, false));
 
 		}
+
+		List<ColumnInfo> allColumnInfos = TableHelper.getTableColumnInfo(conn,
+				tablesName, false);
+
+		List<Map<String, Object>> allValueInTable = TableHelper
+				.getDataByTableName(tablesName, conn, false);
+
 		
-		
-		//开始拼接update 语句
-		String sql  = "update "+tablesName;
-		
+		Statement statement = conn.createStatement();
+		for (Map<String, Object> oneValueInTable : allValueInTable) {
+       
+			// 开始拼接update 语句
+			String sql = "update " + tablesName;
+
+			sql = this.getAfterBodyUpdateSql(sql, foreignKeysValue,
+					allColumnInfos,oneValueInTable);
+	
+			statement.executeUpdate(sql);
+			System.out.println(sql);
+		}
+	
+		statement.close();
+		if(closeConnection)
+			statement.close();
 
 	}
 
@@ -163,6 +178,50 @@ public class InsertDataToTableHelper {
 		if (closeConnection)
 			conn.close();
 
+	}
+
+	/**
+	 * 
+	 * @param beforBody
+	 * @param forigns
+	 * @return anping TODO拼接update sql 的后半段语句 下午7:28:39
+	 */
+	public String getAfterBodyUpdateSql(String beforeBodySql,
+			Map<String, List<Object>> forigns, List<ColumnInfo> columnInfos,
+		
+			Map<String, Object> oneValueInTable ) {
+
+		for (ColumnInfo column : columnInfos) { //开始拼接所有的set 部分的语句
+
+			if (forigns.get(column.getColumnName()) != null) {
+
+				Map<String, Object> columnInfo = new HashMap<String, Object>(1);
+
+				columnInfo.put(
+						column.getColumnName(),
+						forigns.get(column.getColumnName()).get(
+								new Random().nextInt(forigns.get(
+										column.getColumnName()).size())));
+				beforeBodySql += " set " + column.getColumnName() + "="
+						+ this.createSqlByColumnType(column, columnInfo) + ",";
+
+			}
+		}
+
+		beforeBodySql = beforeBodySql.substring(0, beforeBodySql.length() - 1)+" where ";//去除最后一个','逗号
+		
+		for(ColumnInfo column:columnInfos){ //开始拼接where语句后的数据
+			if(oneValueInTable.get(column.getColumnName())!=null){
+				Map<String,Object>  columnInfo  = new HashMap<String,Object>(1);
+				columnInfo.put(column.getColumnName(), oneValueInTable.get(column.getColumnName()));
+				beforeBodySql+=column.getColumnName()+"="+this.createSqlByColumnType(column, columnInfo)+" and ";
+			}
+		}
+		
+		beforeBodySql = beforeBodySql.substring(0, beforeBodySql.length() - 4)+";";//去除最后一个','逗号
+		
+		
+		return beforeBodySql;
 	}
 
 	/*
