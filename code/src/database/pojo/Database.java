@@ -11,6 +11,7 @@ public class Database {
 	private static String url;
 	private static String username;
 	private static String password;
+	
 	public static String getDrivername() {
 		return drivername;
 	}
