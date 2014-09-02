@@ -2,7 +2,7 @@ package database.service;
 
 import database.insert.strategy.InsertDataStrategy;
 
-public interface DatabaseTestDataManagerService {
+public interface DBdataService {
 	/**
 	 * anping
 	 * TODO 通过数据库参数对象来生成测试数据
