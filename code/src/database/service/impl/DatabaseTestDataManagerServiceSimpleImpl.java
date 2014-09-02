@@ -6,6 +6,7 @@ import java.util.Map;
 
 import database.helper.DataBaseConnectionHelper;
 import database.helper.TableHelper;
+import database.insert.strategy.InsertDataStrategy;
 import database.pojo.Database;
 import database.pojo.ForignKeyPo;
 import database.service.*;
@@ -29,7 +30,7 @@ public class DatabaseTestDataManagerServiceSimpleImpl implements
 	 * 2.在生成外键
 	 */
 	@Override
-	public void generationDataByDatabaseObject() {
+	public void generationDataByDatabaseObject(InsertDataStrategy dataStratregy) {
 		// TODO Auto-generated method stub
 		
 
@@ -42,7 +43,7 @@ public class DatabaseTestDataManagerServiceSimpleImpl implements
 	}
 
 	@Override
-	public void rebuildTestData() {
+	public void rebuildTestData(InsertDataStrategy dataStratregy) {
 		// TODO Auto-generated method stub
 
 	}

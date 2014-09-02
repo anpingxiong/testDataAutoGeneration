@@ -34,6 +34,25 @@ public class TableHelperTest {
 	}
 	
 	
+	/**
+	 * anping
+	 * TODO 测试 排序表格方法
+	 * 下午3:34:37
+	 * @throws SQLException 
+	 */
+	@Test
+	public void testSortTableByThreeType() throws SQLException{
+		Connection  conn = DataBaseConnectionHelper.getConnection();
+		TableHelper helper = new TableHelper();
+		Map<String,List<String>>  tableNames = helper.sortTableByThreeType(conn, true);
+		Set<String> keySet =tableNames.keySet();
+		for(String key:keySet){
+			System.out.println(key+":"+tableNames.get(key));
+		}
+		
+	}
+	
+	
 	/** 
 	 * anping
 	 * TODO 测试获取某一个表格中的所有数据
