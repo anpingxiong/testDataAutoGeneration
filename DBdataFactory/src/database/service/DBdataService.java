@@ -1,6 +1,6 @@
 package database.service;
 
-import database.insert.strategy.InsertDataStrategy;
+import database.data.strategy.InsertDataStrategy;
 
 public interface DBdataService {
 	/**

@@ -5,10 +5,10 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import database.data.strategy.InsertDataStrategy;
 import database.helper.DataBaseConnectionHelper;
 import database.helper.InsertDataToTableHelper;
 import database.helper.TableHelper;
-import database.insert.strategy.InsertDataStrategy;
 import database.service.DBdataService;
 
 public class DBDataServiceImpl implements

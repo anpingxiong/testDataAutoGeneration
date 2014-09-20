@@ -9,9 +9,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import database.data.strategy.InsertDataStrategy;
 import database.helper.DataBaseConnectionHelper;
 import database.helper.InsertDataToTableHelper;
-import database.insert.strategy.InsertDataStrategy;
 import database.pojo.ColumnInfo;
 import database.pojo.Database;
 

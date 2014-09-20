@@ -1,4 +1,4 @@
-package database.insert.strategy;
+package database.data.strategy;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
-package database.keyAutoIncrement.strategy.impl;
+package database.autoIncre.strategy.impl;
 
-import database.keyAutoIncrement.strategy.KeyAutoIncrementStrategy;
+import database.autoIncre.strategy.KeyAutoIncrementStrategy;
 
 /**
  * 

@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import database.insert.strategy.InsertDataStrategy;
+import database.data.strategy.InsertDataStrategy;
 import database.pojo.ColumnInfo;
 import database.pojo.ForignKeyPo;
 

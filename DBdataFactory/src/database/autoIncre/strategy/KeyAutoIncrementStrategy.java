@@ -1,4 +1,4 @@
-package database.keyAutoIncrement.strategy;
+package database.autoIncre.strategy;
 
 /**
  * 
